@@ -1,17 +1,19 @@
-import { makeScene2D } from '@motion-canvas/2d'
+import { Gradient, makeScene2D } from '@motion-canvas/2d'
 import { Img, Layout, Rect, Txt } from '@motion-canvas/2d/lib/components'
-import { all, waitFor } from '@motion-canvas/core/lib/flow'
-import { easeInOutCubic, easeOutBack } from '@motion-canvas/core/lib/tweening'
+import { all, chain, waitFor } from '@motion-canvas/core/lib/flow'
+import { easeInOutCubic, easeOutBack, linear } from '@motion-canvas/core/lib/tweening'
 import { createRef } from '@motion-canvas/core/lib/utils'
 
-import ficLogo from '../images/fic.svg'
-import udcLogo from '../images/udc.svg'
+import amtegaLogo from '../images/amtega.jpg'
+import gpulLogo from '../images/gpul.svg'
+import { createSignal } from '@motion-canvas/core'
 
 export default makeScene2D(function* (view) {
   const background = createRef<Rect>()
   const container = createRef<Rect>()
   const header = createRef<Layout>()
   const main = createRef<Layout>()
+  const libreGradient = createSignal(-100)
   const footer = createRef<Layout>()
 
   yield view.add(
@@ -42,30 +44,17 @@ export default makeScene2D(function* (view) {
         {/* Header Section with Logos */}
         <Layout
           ref={header}
+          width={"100%"}
           direction="row"
+          justifyContent="center"
           alignItems="center"
           gap={40}
           opacity={0}
           y={-50}
         >
-          <Img src={udcLogo} width={120} />
-          <Layout direction="column" alignItems="center" gap={15}>
-            <Txt
-              fontSize={48}
-              fill={'#1e293b'}
-              fontWeight={700}
-              letterSpacing={2}
-              cache
-              textAlign={'center'}
-            >
-              UNIVERSIDADE DA CORUÑA
-            </Txt>
-            <Txt fontSize={38} fill={'#64748b'} fontWeight={600} cache>
-              Facultade de Informática
-            </Txt>
-            <Rect width={400} height={3} fill={'#0ea5e9'} radius={2} />
-          </Layout>
-          <Img src={ficLogo} width={120} />
+          <Img src={gpulLogo} height={120} />
+          <Txt>+</Txt>
+          <Img src={amtegaLogo} height={100} />
         </Layout>
 
         {/* Main Content */}
@@ -85,52 +74,25 @@ export default makeScene2D(function* (view) {
             cache
             textAlign={'center'}
           >
-            "Como saír de Vim{'\n'}e algunha cousa máis"
+            Premio ao mellor traballo universitario
           </Txt>
-
-          <Layout direction="column" alignItems="center" gap={15}>
-            <Txt fontSize={52} fill={'#0ea5e9'} fontWeight={700} cache>
-              Miguel López
-            </Txt>
-            <Layout direction="row" alignItems="center" gap={30}>
-              <Rect
-                layout
-                fill={'rgba(14, 165, 233, 0.1)'}
-                stroke={'#0ea5e9'}
-                lineWidth={2}
-                radius={10}
-                padding={15}
-              >
-                <Txt fontSize={28} fill={'#0ea5e9'} fontWeight={600} cache>
-                  GNU Linux
-                </Txt>
-              </Rect>
-              <Rect
-                layout
-                fill={'rgba(16, 185, 129, 0.1)'}
-                stroke={'#10b981'}
-                lineWidth={2}
-                radius={10}
-                padding={15}
-              >
-                <Txt fontSize={28} fill={'#10b981'} fontWeight={600} cache>
-                  Open Source
-                </Txt>
-              </Rect>
-              <Rect
-                layout
-                fill={'rgba(139, 92, 246, 0.1)'}
-                stroke={'#8b5cf6'}
-                lineWidth={2}
-                radius={10}
-                padding={15}
-              >
-                <Txt fontSize={28} fill={'#8b5cf6'} fontWeight={600} cache>
-                  Vim
-                </Txt>
-              </Rect>
-            </Layout>
-          </Layout>
+          <Txt
+            fontSize={200}
+            fontWeight={700}
+            fontFamily={"Jetbrains Mono"}
+            fill={new Gradient({
+              type: 'linear',
+              from: () => -100 + libreGradient(),
+              to: () => 100 + libreGradient(),
+              stops: [
+                {offset: 0, color: '#2A7B9B'},
+                {offset: 1/2, color: '#57C785'},
+                {offset: 2/2, color: '#EDDD53'},
+              ]
+            })}
+          >
+            Libre
+          </Txt>
         </Layout>
 
         {/* Footer Section */}
@@ -142,6 +104,9 @@ export default makeScene2D(function* (view) {
           opacity={0}
           y={50}
         >
+          <Txt>
+            Fecha límite:
+          </Txt>
           <Rect
             layout
             fill={'rgba(14, 165, 233, 0.1)'}
@@ -150,21 +115,8 @@ export default makeScene2D(function* (view) {
             radius={15}
             padding={25}
           >
-            <Txt fontSize={38} fill={'#0ea5e9'} fontWeight={700} cache>
-              Martes, 11 de marzo
-            </Txt>
-          </Rect>
-
-          <Rect
-            layout
-            fill={'rgba(249, 115, 22, 0.1)'}
-            stroke={'#f97316'}
-            lineWidth={3}
-            radius={15}
-            padding={25}
-          >
-            <Txt fontSize={38} fill={'#f97316'} fontWeight={700} cache>
-              18:30 - 20:00h
+            <Txt fontSize={42} fill={'#0ea5e9'} fontWeight={700} cache>
+              30 de outubro
             </Txt>
           </Rect>
         </Layout>
@@ -184,11 +136,16 @@ export default makeScene2D(function* (view) {
 
   yield* waitFor(0.3)
 
-  yield* all(main().opacity(1, 0.8), main().scale(1, 0.8, easeOutBack))
+  yield* all(
+    main().opacity(1, 0.8),
+    main().scale(1, 0.8, easeOutBack),
+    libreGradient(100, 3, easeInOutCubic),
+    chain(
+      waitFor(0.4),
+      all(footer().opacity(1, 0.6), footer().y(0, 0.6, easeInOutCubic))
 
-  yield* waitFor(0.4)
-
-  yield* all(footer().opacity(1, 0.6), footer().y(0, 0.6, easeInOutCubic))
+    )
+  )
 
   yield* waitFor(0.3)
 
