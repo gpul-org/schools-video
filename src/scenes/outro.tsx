@@ -1,8 +1,14 @@
-import { makeScene2D } from '@motion-canvas/2d'
+import { brightness, Img, makeScene2D, Node } from '@motion-canvas/2d'
 import { Layout, Rect, Txt } from '@motion-canvas/2d/lib/components'
 import { all, waitFor } from '@motion-canvas/core/lib/flow'
 import { easeInOutCubic, easeOutBack } from '@motion-canvas/core/lib/tweening'
 import { createRef } from '@motion-canvas/core/lib/utils'
+import crt from '../shaders/crt.glsl';
+
+import instagramLogo from '../images/instagram.svg'
+import telegramLogo from '../images/telegram.svg'
+import webLogo from '../images/web.svg'
+import twitterLogo from '../images/twitter.svg'
 
 export default makeScene2D(function* (view) {
   const background = createRef<Rect>()
@@ -15,9 +21,9 @@ export default makeScene2D(function* (view) {
   const website = createRef<Layout>()
 
   yield view.add(
-    <>
+    <Node shaders={crt}>
       {/* Light Background */}
-      <Rect ref={background} width={1920} height={1080} fill={'#f8fafc'} />
+      <Rect ref={background} width={1920 * 2} height={1080 * 2} fill={'#A6B8B6'} />
 
       {/* Main container */}
       <Rect
@@ -26,18 +32,16 @@ export default makeScene2D(function* (view) {
         direction="column"
         alignItems="center"
         justifyContent="center"
-        gap={70}
+        gap={50}
         width={1600}
         height={900}
-        fill={'white'}
-        stroke={'#e2e8f0'}
         lineWidth={2}
         radius={20}
         shadowColor={'rgba(0, 0, 0, 0.1)'}
         shadowOffset={[0, 10]}
         shadowBlur={40}
         opacity={0}
-        scale={0.8}
+        scale={1.3}
       >
         {/* See you there message */}
         <Txt
@@ -77,11 +81,7 @@ export default makeScene2D(function* (view) {
               opacity={0}
               scale={0.8}
             >
-              <Rect size={90} fill={'#E1306C'} radius={20}>
-                <Txt fontSize={40} fill={'white'} fontWeight={700} cache>
-                  📷
-                </Txt>
-              </Rect>
+              <Img width={90} src={instagramLogo}/>
               <Txt
                 fontSize={32}
                 fill={'#64748b'}
@@ -102,11 +102,7 @@ export default makeScene2D(function* (view) {
               opacity={0}
               scale={0.8}
             >
-              <Rect size={90} fill={'#1DA1F2'} radius={20}>
-                <Txt fontSize={40} fill={'white'} fontWeight={700} cache>
-                  🐦
-                </Txt>
-              </Rect>
+              <Img width={90} src={twitterLogo}/>
               <Txt
                 fontSize={32}
                 fill={'#64748b'}
@@ -127,11 +123,7 @@ export default makeScene2D(function* (view) {
               opacity={0}
               scale={0.8}
             >
-              <Rect size={90} fill={'#0088cc'} radius={20}>
-                <Txt fontSize={40} fill={'white'} fontWeight={700} cache>
-                  ✈️
-                </Txt>
-              </Rect>
+              <Img width={90} src={telegramLogo}/>
               <Txt
                 fontSize={32}
                 fill={'#64748b'}
@@ -152,11 +144,7 @@ export default makeScene2D(function* (view) {
               opacity={0}
               scale={0.8}
             >
-              <Rect size={90} fill={'#0ea5e9'} radius={20}>
-                <Txt fontSize={40} fill={'white'} fontWeight={700} cache>
-                  🌐
-                </Txt>
-              </Rect>
+              <Img width={90} src={webLogo}/>
               <Txt
                 fontSize={32}
                 fill={'#64748b'}
@@ -182,7 +170,7 @@ export default makeScene2D(function* (view) {
           Promovendo o software libre desde 2003
         </Txt>
       </Rect>
-    </>
+    </Node>
   )
 
   // Animation sequence

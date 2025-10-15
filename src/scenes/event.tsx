@@ -1,11 +1,38 @@
-import { makeScene2D } from '@motion-canvas/2d'
+import { brightness, makeScene2D, Node } from '@motion-canvas/2d'
 import { Img, Layout, Rect, Txt } from '@motion-canvas/2d/lib/components'
 import { all, waitFor } from '@motion-canvas/core/lib/flow'
 import { easeInOutCubic, easeOutBack } from '@motion-canvas/core/lib/tweening'
 import { createRef } from '@motion-canvas/core/lib/utils'
+import crt from '../shaders/crt.glsl';
+import { data } from '../project';
 
 import ficLogo from '../images/fic.svg'
 import udcLogo from '../images/udc.svg'
+
+const COLORS = [
+  "#0ea5e9",
+  "#10b981",
+  "#8b5cf6",
+  "#ec4899"
+]
+const BG_COLORS = [
+  "#0ea5e922",
+  "#10b98122",
+  "#8b5cf622",
+  "#ec489922"
+]
+
+const dayFormatter = new Intl.DateTimeFormat("gl-es", {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long'
+})
+
+const timeFormatter = new Intl.DateTimeFormat("gl-es", {
+  hour: 'numeric',
+  minute: 'numeric',
+  hour12: false
+})
 
 export default makeScene2D(function* (view) {
   const background = createRef<Rect>()
@@ -15,9 +42,9 @@ export default makeScene2D(function* (view) {
   const footer = createRef<Layout>()
 
   yield view.add(
-    <>
+    <Node shaders={crt}>
       {/* Light Background */}
-      <Rect ref={background} width={1920} height={1080} fill={'#f8fafc'} />
+      <Rect ref={background} width={1920 * 2} height={1080 * 2} fill={'#A6B8B6'} />
 
       {/* Main container */}
       <Rect
@@ -29,15 +56,13 @@ export default makeScene2D(function* (view) {
         gap={50}
         width={1600}
         height={900}
-        fill={'white'}
-        stroke={'#e2e8f0'}
         lineWidth={2}
         radius={20}
         shadowColor={'rgba(0, 0, 0, 0.1)'}
         shadowOffset={[0, 10]}
         shadowBlur={40}
         opacity={0}
-        scale={0.8}
+        scale={1.3}
       >
         {/* Header Section with Logos */}
         <Layout
@@ -85,50 +110,32 @@ export default makeScene2D(function* (view) {
             cache
             textAlign={'center'}
           >
-            "Como saír de Vim{'\n'}e algunha cousa máis"
+            {data.title}
           </Txt>
 
           <Layout direction="column" alignItems="center" gap={15}>
             <Txt fontSize={52} fill={'#0ea5e9'} fontWeight={700} cache>
-              Miguel López
+              {data.author}
             </Txt>
             <Layout direction="row" alignItems="center" gap={30}>
+
+              {
+                data.tags.map( (tag, i) =>
+                
               <Rect
                 layout
-                fill={'rgba(14, 165, 233, 0.1)'}
-                stroke={'#0ea5e9'}
+                fill={BG_COLORS[i]}
+                stroke={COLORS[i]}
                 lineWidth={2}
                 radius={10}
                 padding={15}
               >
-                <Txt fontSize={28} fill={'#0ea5e9'} fontWeight={600} cache>
-                  GNU Linux
+                <Txt fontSize={28} fill={COLORS[i]} filters={[brightness(0.3)]} fontWeight={600} cache>
+                  {tag}
                 </Txt>
               </Rect>
-              <Rect
-                layout
-                fill={'rgba(16, 185, 129, 0.1)'}
-                stroke={'#10b981'}
-                lineWidth={2}
-                radius={10}
-                padding={15}
-              >
-                <Txt fontSize={28} fill={'#10b981'} fontWeight={600} cache>
-                  Open Source
-                </Txt>
-              </Rect>
-              <Rect
-                layout
-                fill={'rgba(139, 92, 246, 0.1)'}
-                stroke={'#8b5cf6'}
-                lineWidth={2}
-                radius={10}
-                padding={15}
-              >
-                <Txt fontSize={28} fill={'#8b5cf6'} fontWeight={600} cache>
-                  Vim
-                </Txt>
-              </Rect>
+              )
+            }
             </Layout>
           </Layout>
         </Layout>
@@ -150,8 +157,8 @@ export default makeScene2D(function* (view) {
             radius={15}
             padding={25}
           >
-            <Txt fontSize={38} fill={'#0ea5e9'} fontWeight={700} cache>
-              Martes, 11 de marzo
+            <Txt filters={[brightness(0.3)]} fontSize={38} fill={'#0ea5e9'} fontWeight={700} cache>
+              {dayFormatter.format(data.startDate)}
             </Txt>
           </Rect>
 
@@ -163,19 +170,20 @@ export default makeScene2D(function* (view) {
             radius={15}
             padding={25}
           >
-            <Txt fontSize={38} fill={'#f97316'} fontWeight={700} cache>
-              18:30 - 20:00h
+            <Txt filters={[brightness(0.3)]} fontSize={38} fill={'#f97316'} fontWeight={700} cache>
+              {timeFormatter.format(data.startDate)}
+              {" - "}
+              {timeFormatter.format(data.endDate)}
             </Txt>
           </Rect>
         </Layout>
       </Rect>
-    </>
+    </Node>
   )
 
   // Animation sequence
   yield* all(
     container().opacity(1, 0.8, easeInOutCubic),
-    container().scale(1, 0.8, easeOutBack)
   )
 
   yield* waitFor(0.2)
